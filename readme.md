@@ -34,13 +34,15 @@ library:
 input format:
 
 YY/MM/DD	[resource type] [resource name] [operation] [member type] [member name]
+
 ---
 resource type : Book
 
 operation : B, R
 
 member type : Undergraduate
+
 ---
 output format:
 
-op# return code description
+[op#] [return code] [description]
