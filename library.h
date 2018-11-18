@@ -10,9 +10,13 @@ class library{
 	private:
 		int num_input;
 		int num_book;
+<<<<<<< HEAD
 		int num_member;
 		vector<book*> book_p;
 		vector<member*> member_p;
+=======
+		string input_list[MAX];
+>>>>>>> from "read and read input.dat" to "read once and save all data"
 	public:
 		library();
 		void init();
@@ -60,7 +64,11 @@ void library :: init(){
 	book* bp;
 	int i = 0;
 	string tok;
+<<<<<<< HEAD
 	string member_type;
+=======
+	num_input = 0;
+>>>>>>> from "read and read input.dat" to "read once and save all data"
 
 	getline(fp, temp);
 	while(1){
@@ -82,7 +90,12 @@ void library :: init(){
 	ifstream fpi("input.dat");
 	getline(fpi, temp);
 	while(1){
+<<<<<<< HEAD
 		getline(fpi, temp);
+=======
+		input_list[num_input] = temp;
+		num_input++;
+>>>>>>> from "read and read input.dat" to "read once and save all data"
 		if(fpi.eof()) break;
 		else{
 			stringstream ss(temp);
@@ -103,8 +116,36 @@ void library :: init(){
 			}
 		}
 	}
+<<<<<<< HEAD
 	num_member = i;
+=======
+>>>>>>> from "read and read input.dat" to "read once and save all data"
 	fpi.close();
+
+/*	ifstream fpi2("space.dat");
+	fpi2.getline(temp, MAX);
+	while(1){
+		fpi2.getline(temp, MAX);
+		input_list[num_input] = temp;
+		num_input++;
+		if(fpi.eof()) break;
+		else{
+			stringstream ss(temp);
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			if(!find_undergraduate(tok)){
+				u = new undergraduate(tok);
+				undergraduate_p[i] = u;
+				i++;
+			}
+		}
+	}
+	fpi2.close();*/
+	num_undergraduate = i;
 }
 
 void library :: do_work(){
@@ -120,6 +161,7 @@ void library :: do_work(){
 	string member_type;
 	string member_name;
 	string date;
+<<<<<<< HEAD
 	string temp;
 	string tok;
 
@@ -128,11 +170,17 @@ void library :: do_work(){
 	outf << "Op_#\tReturn_code\tDescription" << endl;
 
 
-	getline(inf, temp);
+=======
+
+
+>>>>>>> from "read and read input.dat" to "read once and save all data"
 	while(1){
+		temp = input_list[i];
 		i++;
-		getline(inf, temp);
-		if(inf.eof()) break;
+<<<<<<< HEAD
+=======
+		if(i == num_input) break;
+>>>>>>> from "read and read input.dat" to "read once and save all data"
 		else{
 			outf << i << "\t";
 
@@ -185,7 +233,6 @@ void library :: do_work(){
 			}
 		}
 	}
-	inf.close();
 	outf.close();
 }
 
