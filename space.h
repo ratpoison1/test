@@ -6,33 +6,33 @@ class space{
 class studyroom : public space{
 	private:
 		int room_number;
-		string who_borrowed;
+		int borrowed_number;
 	public:
 		studyroom(int n){
 			room_number = n;
+			borrowed_number = 0;
 		}
-		string get_who_borrowed(){
-			return who_borrowed;
+		int get_borrowed_number(){
+			return borrowed_number;
 		}
-		void set_who_borrowed(string who){
-			who_borrowed = who;
+		void set_borrowed_number(int n){
+			borrowed_number = n;
 		}
 };
 
 class seat : public space{
 	private:
-		int floor;
 		int seat_number;
-		string who_borrowed;
+		int borrowed_number;
 	public:
-		seat(int n, int m){
-			floor = n;
-			seat_number = m;
+		seat(int n){
+			seat_number = n;
+			borrowed_number = 0;
 		}
-		string get_who_borrowed(){
-			return who_borrowed;
+		int get_borrowed_number(){
+			return borrowed_number();
 		}
-		void set_who_borrowed(string who){
-			who_borrowed = who;
+		void set_borrowed_number(int n){
+			borrowed_number = n;
 		}
 };
