@@ -14,6 +14,7 @@ class library{
 		int num_undergraduate;
 		book* book_p[MAX];
 		undergraduate* undergraduate_p[MAX];
+		string input_list[MAX];
 	public:
 		library();
 		void init();
@@ -60,6 +61,7 @@ void library :: init(){
 	book* b;
 	int i = 0;
 	string tok;
+	num_input = 0;
 
 	fp.getline(temp, MAX);
 	while(1){
@@ -82,6 +84,8 @@ void library :: init(){
 	fpi.getline(temp, MAX);
 	while(1){
 		fpi.getline(temp, MAX);
+		input_list[num_input] = temp;
+		num_input++;
 		if(fpi.eof()) break;
 		else{
 			stringstream ss(temp);
@@ -98,8 +102,32 @@ void library :: init(){
 			}
 		}
 	}
-	num_undergraduate = i;
 	fpi.close();
+
+/*	ifstream fpi2("space.dat");
+	fpi2.getline(temp, MAX);
+	while(1){
+		fpi2.getline(temp, MAX);
+		input_list[num_input] = temp;
+		num_input++;
+		if(fpi.eof()) break;
+		else{
+			stringstream ss(temp);
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			ss >> tok;
+			if(!find_undergraduate(tok)){
+				u = new undergraduate(tok);
+				undergraduate_p[i] = u;
+				i++;
+			}
+		}
+	}
+	fpi2.close();*/
+	num_undergraduate = i;
 }
 
 void library :: do_work(){
@@ -116,18 +144,16 @@ void library :: do_work(){
 	string member_name;
 	string date;
 
-	char temp[MAX];
+//	char temp[MAX];
+	string temp;
 	string tok;
-	ifstream inf("input.dat");
 	ofstream outf("output.dat");
 	outf << "Op_#\tReturn_code\tDescription" << endl;
 
-
-	inf.getline(temp, MAX);
 	while(1){
+		temp = input_list[i];
 		i++;
-		inf.getline(temp, MAX);
-		if(inf.eof()) break;
+		if(i == num_input) break;
 		else{
 			outf << i << "\t";
 
@@ -182,7 +208,6 @@ void library :: do_work(){
 			}
 		}
 	}
-	inf.close();
 	outf.close();
 }
 
