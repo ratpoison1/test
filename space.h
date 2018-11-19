@@ -30,7 +30,7 @@ class seat : public space{
 			borrowed_number = 0;
 		}
 		int get_borrowed_number(){
-			return borrowed_number();
+			return borrowed_number;
 		}
 		void set_borrowed_number(int n){
 			borrowed_number = n;
