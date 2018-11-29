@@ -56,7 +56,7 @@ library :: library(){
 	num_input = 0;
 	studyroom_num = 0;
 	init();
-//	save_input();
+	save_input();
 	save_space();
 	sort_input();
 	do_work();
