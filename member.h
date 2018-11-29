@@ -7,18 +7,6 @@ class member{
 		vector<string> deadline;
 		string borrowed_date;
 		vector<string> list;
-	public:
-		string get_name(){
-			return name;
-		}
-<<<<<<< HEAD
-		int get_loan_period(){
-			return loan_period;
-=======
-};
-
-class undergraduate : public member{
-	private:
 		int borrowed_studyroom;
 		int borrowed_seat;
 		int studyroom_hh;
@@ -26,12 +14,11 @@ class undergraduate : public member{
 		int empty_hh;
 		int howmany_seat;
 	public:
-		undergraduate(string n){
-			name = n;
-			borrowed = 0;
-			borrowed_studyroom = 0;
-			borrowed_seat = 0;
->>>>>>> --need--
+		string get_name(){
+			return name;
+		}
+		int get_loan_period(){
+			return loan_period;
 		}
 		int get_num_limit(){
 			return num_limit;
@@ -75,13 +62,8 @@ class undergraduate : public member{
 		string get_borrowed_date(){
 			return borrowed_date;	
 		}
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 		void set_empty_date(string s){
 			empty_date = s;
-=======
 		void set_howmany_seat(int n){
 			howmany_seat = n;
 		}
@@ -93,7 +75,6 @@ class undergraduate : public member{
 		}
 		void set_studyroom_hh(int n){
 			studyroom_hh = n;
->>>>>>> finish
 		}
 		void set_borrowed_studyroom(int n){
 			borrowed_studyroom = n;
@@ -107,7 +88,6 @@ class undergraduate : public member{
 		void set_restricted(bool n){
 			restricted = n;
 		}
->>>>>>> --need--
 		void set_restricted_date(string s){
 			restricted_date = s;
 		}
@@ -128,6 +108,17 @@ class undergraduate : public member{
 				}
 			}
 			cout << "del_list error : there is no book in the list" << endl;
+		}
+};
+
+class undergraduate : public member{
+	private:
+	public:
+		undergraduate(string n){
+			name = n;
+			borrowed = 0;
+			borrowed_studyroom = 0;
+			borrowed_seat = 0;
 		}
 };
 

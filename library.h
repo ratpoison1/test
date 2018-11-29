@@ -15,8 +15,6 @@ class library{
 		vector<member*> member_p;
 		vector<space*> space_p;
 		vector<string> input_list;
-		int num_empty;
-		string empty_list[MAX];
 	public:
 		library();
 		void init();
@@ -47,8 +45,6 @@ class library{
 };
 
 library :: library(){
-	num_empty = 0;
-	studyroom_num = 0;
 	init();
 	save_input();
 	save_space();
@@ -77,13 +73,10 @@ member* library :: find_member(string name){
 void library :: init(){
 	ifstream fp("resource.dat");
 	string temp;
-	member* mp;
 	book* bp;
-	seat* st;
-	studyroom* sr;
+	space* st;
 	int i = 0;
 	string tok;
-	string member_type;
 
 	// save resource.dat //
 	getline(fp, temp);
@@ -99,7 +92,14 @@ void library :: init(){
 		}
 	}
 	fp.close();
-	// finished // 
+	//// 
+
+	// allocate space_p //
+	for(i = 0; i < 13; i++){
+		if(i < 10) st = new seat(i+1);
+		else st = new studyroom(i-9);
+	}
+	////
 }
 
 void library :: save_input(){
@@ -437,17 +437,18 @@ void library :: code_0(ofstream &fp, string resource_name, string member_name, c
 }
 
 void library :: code_0_s(ofstream &fp, string space_type, string member_name, char type, string date, int time, int space_number, int number_of_member){
-	undergraduate* up;
-	studyroom* sr;
-	seat* st;
+	member* mp;
+	space* sp;
 	int hh, hh_e;
 
-	up = find_undergraduate(member_name);
+	mp = find_member(member_name);
 
 	hh = (date[11]-48)*10 + date[12]-48;
 	hh += time;
 	hh_e = hh + 1;
-	if(space_type == "StudyRoom") if(hh > 18) hh = 18;
+	if(space_type == "StudyRoom"){
+		if(hh > 18) hh = 18;
+	}
 	else if(space_type == "Seat"){
 		if(space_number == 2){
 			if(hh > 21) hh = 21;
@@ -462,37 +463,34 @@ void library :: code_0_s(ofstream &fp, string space_type, string member_name, ch
 
 	int i;
 	if(space_type == "StudyRoom"){
-		sr = studyroom_p[space_number-1];
+		sp = space_p[space_number-1];
 			
 		if(type == 'B'){
-			up->set_borrowed_studyroom(space_number);
-			up->set_studyroom_hh(hh);
-			studyroom_num++;
+			mp->set_borrowed_studyroom(space_number);
+			mp->set_studyroom_hh(hh);
 		}	
-		else if(type == 'R'){
+		else if(type == 'R')
 			up->set_borrowed_studyroom(0);
-			studyroom_num--;
-		}
 	}
 	else if(space_type == "Seat"){
-		st = seat_p[space_number-1];
+		sp = space_p[space_number+9];
 	
 		if(type == 'B'){
-			up->set_borrowed_seat(space_number);
-			up->set_seat_hh(hh);
-			up->set_howmany_seat(number_of_member);
-			st->set_borrowed_number(st->get_borrowed_number() + number_of_member);
+			mp->set_borrowed_seat(space_number);
+			mp->set_seat_hh(hh);
+			mp->set_howmany_seat(number_of_member);
+			sp->set_borrowed_number(st->get_borrowed_number() + number_of_member);
 		}	
 		else if(type == 'R'){
-			up->set_borrowed_seat(0);
-			st->set_borrowed_number(st->get_borrowed_number() - number_of_member);
+			mp->set_borrowed_seat(0);
+			sp->set_borrowed_number(st->get_borrowed_number() - number_of_member);
 		}
 		else if(type == 'E'){
-			up->set_empty_hh(up->get_seat_hh());
-			up->set_seat_hh(hh_e);
+			mp->set_empty_hh(up->get_seat_hh());
+			mp->set_seat_hh(hh_e);
 		}
 		else if(type == 'C'){
-			up->set_seat_hh(up->get_empty_hh());
+			mp->set_seat_hh(up->get_empty_hh());
 		}
 	}
 	else fp << "code_0_s space_type error. space_type : " << space_type << endl;
@@ -600,11 +598,15 @@ void library :: code_14(ofstream &fp, string space_type){
 	int i, hh, time, temp;
 	time = 24;
 
-	for(i = 0; i < num_undergraduate; i++){
-		if(space_type == "StudyRoom" && undergraduate_p[i]->get_borrowed_studyroom() != 0)
-			temp = undergraduate_p[i]->get_studyroom_hh();
-		else if(space_type == "Seat" && undergraduate_p[i]->get_borrowed_seat() != 0)
-			temp = undergraduate_p[i]->get_seat_hh();
+	for(i = 0; i < member_p.size(); i++){
+		if(space_type == "StudyRoom"){
+			if(member_p[i]->get_borrowed_studyroom() != 0)
+				temp = member_p[i]->get_studyroom_hh();
+		}
+		else if(space_type == "Seat"){
+			if(member_p[i]->get_borrowed_seat() != 0)
+				temp = member_p[i]->get_seat_hh();
+		}
 		if(time > temp) time = temp;
 	}
 	fp << time << endl;
@@ -627,10 +629,6 @@ float library :: get_sum(string date){
 	}
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	return yy*360 + mm*30 + dd;
-=======
 void library :: sort_input(){
 	int i;
 	string tok1, tok2, temp;
@@ -651,42 +649,35 @@ void library :: sort_input(){
 			i = 0;
 		}
 	}
->>>>>>> --need--
 }
 
-void library :: refresh(string date_r, string past_date_r){
-	int i, j;
-=======
 void library :: refresh(string date, string past_date){
 	int i;
 	int hh;
->>>>>>> finish
-	undergraduate* up;
-	seat* st;
-	studyroom* sr;
+	member* mp;
+	space* sp;
 	hh = (date[11]-48)*10 + date[12]-48;
 	if(get_sum(date) - get_sum(past_date) < 0.5){
-		for(i = 0; i < num_undergraduate; i++){
-			up = undergraduate_p[i];
-			if((up->get_borrowed_seat() != 0) && (hh >= up->get_seat_hh())){
-				st = seat_p[up->get_borrowed_seat()-1];
-				up->set_borrowed_seat(0);
-				st->set_borrowed_number(st->get_borrowed_number()-1);
+		for(i = 0; i < member_p.size(); i++){
+			mp = member_p[i];
+			if((mp->get_borrowed_seat() != 0) && (hh >= mp->get_seat_hh())){
+				sp = space_p[mp->get_borrowed_seat()-1];
+				mp->set_borrowed_seat(0);
+				sp->set_borrowed_number(sp->get_borrowed_number()-mp->get_howmany_seat());
 			}
-			if((up->get_borrowed_studyroom() != 0) && (hh >= up->get_studyroom_hh())){
-				sr = studyroom_p[up->get_borrowed_studyroom()-up->get_howmany_seat()];
-				up->set_borrowed_studyroom(0);
-				studyroom_num--;
+			if((mp->get_borrowed_studyroom() != 0) && (hh >= mp->get_studyroom_hh())){
+				sp = space_p[mp->get_borrowed_studyroom()-1];
+				mp->set_borrowed_studyroom(0);
+				sp->set_borrowed_number(0);
 			}
 		}
 	}
 	else{
-		for(i = 0; i < num_undergraduate; i++){
-			up = undergraduate_p[i];
-			up->set_borrowed_studyroom(0);
-			up->set_borrowed_seat(0);
+		for(i = 0; i < member_p.size(); i++){
+			mp = member_p[i];
+			mp->set_borrowed_studyroom(0);
+			mp->set_borrowed_seat(0);
 		}
-		for(i = 0; i < SEAT; i++) seat_p[i]->set_borrowed_number(0);
-		studyroom_num = 0;
+		for(i = 0; i < SEAT; i++) space_p[i]->set_borrowed_number(0);
 	}
 }
