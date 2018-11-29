@@ -332,77 +332,7 @@ void library :: do_work(){
 						code_0(outf, resource_name, member_name, 'R', date);
 				}
 			}
-
-			// space do_word //
-			else{ 
-				hh = (date[11]-48)*10 + date[12]-48;
-				if(past_check) refresh(date, past_date); // refresh	
-				if(space_type == "StudyRoom"){
-					if(operation == 'B'){
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() != 0) code_11(outf);
-						else if(number_of_member > 6) code_12(outf);
-						else if(time > 6) code_13(outf);
-						else if(studyroom_num == 10) code_14(outf, space_type);
-						else code_0_s(outf, space_type, member_name, 'B', date, time, space_number, number_of_member);
-					}
-					else if(operation == 'R'){
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'R', date, time, space_number, number_of_member);	
-					}
-					else if(operation == 'E'){
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
-					}
-					else{
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
-					}
-				}
-				else if(space_type == "Seat"){
-					if(operation == 'B'){
-						if(space_number > SEAT) code_8(outf);
-						else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
-						else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_seat() != 0) code_11(outf);
-						else if(number_of_member > 6) code_12(outf);
-						else if(time > 3) code_13(outf);
-						else if(sr->get_borrowed_number() + number_of_member > 50) code_14(outf, space_type);
-						else code_0_s(outf, space_type, member_name, 'B', date, time, space_number, number_of_member);
-					}
-					else if(operation == 'R'){
-						if(space_number > SEAT) code_8(outf);
-						else if(time < 9 || time > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'R', date, time, space_number, number_of_member);	
-					}
-					else if(operation == 'E'){
-						if(space_number > SEAT) code_8(outf);
-						else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
-						else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
-					}
-					else{
-						if(space_number > SEAT) code_8(outf);
-						else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
-						else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'C', date, time, space_number, number_of_member);	
-					}
-				}
-				else cout << "wrong input, space_type : " << space_type << endl;
-			}
-			// end //
 		}
-<<<<<<< HEAD
 		////
 
 		// space do_word //
@@ -561,7 +491,7 @@ void library :: code_0_s(ofstream &fp, string space_type, string member_name, ch
 			mp->set_studyroom_hh(hh);
 		}	
 		else if(type == 'R')
-			up->set_borrowed_studyroom(0);
+			mp->set_borrowed_studyroom(0);
 	}
 	else if(space_type == "Seat"){
 		sp = space_p[space_number+9];
@@ -582,69 +512,6 @@ void library :: code_0_s(ofstream &fp, string space_type, string member_name, ch
 		}
 		else if(type == 'C'){
 			mp->set_seat_hh(up->get_empty_hh());
-		}
-	}
-	else fp << "code_0_s space_type error. space_type : " << space_type << endl;
-	fp << "0\tSuccess." << endl;
-}
-
-void library :: code_0_s(ofstream &fp, string space_type, string member_name, char type, string date, int time, int space_number, int number_of_member){
-	undergraduate* up;
-	studyroom* sr;
-	seat* st;
-	int hh, hh_e;
-
-	up = find_undergraduate(member_name);
-
-	hh = (date[11]-48)*10 + date[12]-48;
-	hh += time;
-	hh_e = hh + 1;
-	if(space_type == "StudyRoom") if(hh > 18) hh = 18;
-	else if(space_type == "Seat"){
-		if(space_number == 2){
-			if(hh > 21) hh = 21;
-			if(hh_e > 21) hh_e = 21;
-		}
-		else if(space_number == 3){
-			if(hh > 18) hh = 18;
-			if(hh_e > 18) hh_e = 18;
-		}
-		else cout << "code_0_s : time limit space_number error" << endl;
-	}
-
-	int i;
-	if(space_type == "StudyRoom"){
-		sr = studyroom_p[space_number-1];
-			
-		if(type == 'B'){
-			up->set_borrowed_studyroom(space_number);
-			up->set_studyroom_hh(hh);
-			studyroom_num++;
-		}	
-		else if(type == 'R'){
-			up->set_borrowed_studyroom(0);
-			studyroom_num--;
-		}
-	}
-	else if(space_type == "Seat"){
-		st = seat_p[space_number-1];
-	
-		if(type == 'B'){
-			up->set_borrowed_seat(space_number);
-			up->set_seat_hh(hh);
-			up->set_howmany_seat(number_of_member);
-			st->set_borrowed_number(st->get_borrowed_number() + number_of_member);
-		}	
-		else if(type == 'R'){
-			up->set_borrowed_seat(0);
-			st->set_borrowed_number(st->get_borrowed_number() - number_of_member);
-		}
-		else if(type == 'E'){
-			up->set_empty_hh(up->get_seat_hh());
-			up->set_seat_hh(hh_e);
-		}
-		else if(type == 'C'){
-			up->set_seat_hh(up->get_empty_hh());
 		}
 	}
 	else fp << "code_0_s space_type error. space_type : " << space_type << endl;
