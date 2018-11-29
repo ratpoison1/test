@@ -1,28 +1,27 @@
-#include "resource.h"
-#include "member.h"
-#include "input.h"
 #include <string>
-#include <sstream>
 #include <fstream>
-#define MAX 500
-using namespace std;
+#include <sstream>
+#include <vector>
+#include "input.h"
+#include "member.h"
+#include "resource.h"
 
 class library{
 	private:
 		int num_input;
 		int num_book;
-		int num_undergraduate;
-		book* book_p[MAX];
-		undergraduate* undergraduate_p[MAX];
+		int num_member;
+		vector<book*> book_p;
+		vector<member*> member_p;
 	public:
 		library();
 		void init();
 		void do_work();
 		book* find_book(string name);
-		undergraduate* find_undergraduate(string name);
+		member* find_member(string name);
 		void code_0(ofstream &fp, string resource_name, string member_name, char type, string date);
 		void code_1(ofstream &fp);
-		void code_2(ofstream &fp);
+		void code_2(ofstream &fp, string member_name);
 		void code_3(ofstream &fp);
 		void code_4(ofstream &fp, string borrowed_date);
 		void code_5(ofstream &fp, string return_date);
@@ -32,7 +31,7 @@ class library{
 };
 
 library :: library(){
-	num_undergraduate = 0;
+	num_member = 0;
 	init();
 	do_work();
 }
@@ -40,37 +39,39 @@ library :: library(){
 
 book* library :: find_book(string name){
 	int i;
-	for(i = 0; i < num_book; i++)
+	for(i = 0; i < num_book; i++){
 		if(name == book_p[i]->get_name()) return book_p[i];
+	}
 	return 0;
 }
 
-undergraduate* library :: find_undergraduate(string name){
+member* library :: find_member(string name){
 	int i;
-	for(i = 0; i < num_undergraduate; i++){
-		if(name == undergraduate_p[i]->get_name()) return undergraduate_p[i];
+	for(i = 0; i < num_member; i++){
+		if(name == member_p[i]->get_name()) return member_p[i];
 	}
 	return 0;
 }
 
 void library :: init(){
 	ifstream fp("resource.dat");
-	char temp[MAX];
-	undergraduate* u;
-	book* b;
+	string temp;
+	member* mp;
+	book* bp;
 	int i = 0;
 	string tok;
+	string member_type;
 
-	fp.getline(temp, MAX);
+	getline(fp, temp);
 	while(1){
-		fp.getline(temp, MAX);
+		getline(fp, temp);
 		if(fp.eof()) break;
 		else{
 			stringstream ss(temp);
 			ss >> tok;
 			ss >> tok;
-			b = new book(tok);
-			book_p[i] = b;
+			bp = new book(tok);
+			book_p.push_back(bp);
 			i++;
 		}
 	}
@@ -79,9 +80,9 @@ void library :: init(){
 
 	i = 0;
 	ifstream fpi("input.dat");
-	fpi.getline(temp, MAX);
+	getline(fpi, temp);
 	while(1){
-		fpi.getline(temp, MAX);
+		getline(fpi, temp);
 		if(fpi.eof()) break;
 		else{
 			stringstream ss(temp);
@@ -90,15 +91,19 @@ void library :: init(){
 			ss >> tok;
 			ss >> tok;
 			ss >> tok;
+			member_type = tok;
 			ss >> tok;
-			if(!find_undergraduate(tok)){
-				u = new undergraduate(tok);
-				undergraduate_p[i] = u;
+			if(!find_member(tok)){
+				if(member_type == "Undergraduate") mp = new undergraduate(tok);
+				else if(member_type == "Graduate") mp = new graduate(tok);
+				else if(member_type == "Faculty") mp = new faculty(tok);
+				else cout << "wrong input : wrong member type" << endl;
+				member_p.push_back(mp);
 				i++;
 			}
 		}
 	}
-	num_undergraduate = i;
+	num_member = i;
 	fpi.close();
 }
 
@@ -106,27 +111,27 @@ void library :: do_work(){
 	int i = 0;
 	int delay;
 	int yy, mm, dd, yy_d, mm_d, dd_d;
-	undergraduate* up;
+	member* mp;
 	book* bp;
 
-	char operation;
+	string operation;
 	string resource_type;
 	string resource_name;
 	string member_type;
 	string member_name;
 	string date;
-
-	char temp[MAX];
+	string temp;
 	string tok;
+
 	ifstream inf("input.dat");
 	ofstream outf("output.dat");
 	outf << "Op_#\tReturn_code\tDescription" << endl;
 
 
-	inf.getline(temp, MAX);
+	getline(inf, temp);
 	while(1){
 		i++;
-		inf.getline(temp, MAX);
+		getline(inf, temp);
 		if(inf.eof()) break;
 		else{
 			outf << i << "\t";
@@ -139,42 +144,40 @@ void library :: do_work(){
 			ss >> tok;
 			resource_name = tok;
 			ss >> tok;
-			operation = tok[0];
+			operation = tok;
 			ss >> tok;
 			member_type = tok;
 			ss >> tok;
 			member_name = tok;
-
-			up = find_undergraduate(member_name);
+	
+			mp = find_member(member_name);
 			bp = find_book(resource_name);
-
-			if(operation == 'B'){
+		
+			if(operation == "B"){
 				if(!bp)
 					code_1(outf);
-				else if(up->get_borrowed())
-					code_2(outf);
+				else if(mp->get_num_limit() == mp->get_num_borrowed())
+					code_2(outf, member_name);
 				else if(bp->get_state() == 'B'){
 					if(bp->get_who_borrowed() == member_name)
-						code_4(outf, up->get_borrowed_date());
+						code_4(outf, mp->get_borrowed_date());
 					else
-						code_5(outf, find_undergraduate(bp->get_who_borrowed())->get_deadline());
+						code_5(outf, find_member(bp->get_who_borrowed())->get_deadline(resource_name));
 				}
-				else if(up->get_restricted())
-					if(get_sum(date) - get_sum(up->get_restricted_date()) <= 0)
-						code_6(outf, up->get_restricted_date());
-					else
-						code_0(outf, resource_name, member_name, 'B', date);
+				else if(get_sum(date) <= get_sum(mp->get_restricted_date()))
+					code_6(outf, mp->get_restricted_date());
 				else
 					code_0(outf, resource_name, member_name, 'B', date);
 			}
 			else{
-				if(!up->get_borrowed())
-					code_3(outf);
-				else if(up->get_borrowed_book() != resource_name)	
+				if(!bp){
+					code_1(outf);
+				}
+				else if(!mp->check_book(resource_name))
 					code_3(outf);
 				else{
-					delay = get_sum(date) - get_sum(up->get_deadline());
-					if(delay > 0)	
+					delay = get_sum(date) - get_sum(mp->get_deadline(resource_name));
+					if(delay > 0)
 						code_7(outf, resource_name, member_name, date, delay);
 					else
 						code_0(outf, resource_name, member_name, 'R', date);
@@ -187,56 +190,57 @@ void library :: do_work(){
 }
 
 void library :: code_0(ofstream &fp, string resource_name, string member_name, char type, string date){
-	undergraduate* up;
+	member* mp;
 	book* bp;
-	char deadline[8];
+	string deadline;
 	int yy, mm, dd;
 
 	fp << "0\tSuccess." << endl;
-	up = find_undergraduate(member_name);
+	mp = find_member(member_name);
 	bp = find_book(resource_name);
 
 	yy = (date[0]-48)*10 + date[1]-48;
 	mm = (date[3]-48)*10 + date[4]-48;
-	dd = (date[6]-48)*10 + date[7]-35;
+	dd = (date[6]-48)*10 + date[7]-48;
+
+	dd += mp->get_loan_period() - 1;
+
 	if(dd > 30){
 		dd -= 30;
 		mm++;
 	}
-	if(mm > 30){
+	if(mm > 12){
 		mm -= 12;
 		yy++;
 	}
 
-	deadline[0] = yy/10 + 48;
-	deadline[1] = yy%10 + 48;
-	deadline[2] = '/';
-	deadline[3] = mm/10 + 48;
-	deadline[4] = mm%10 + 48;
-	deadline[5] = '/';
-	deadline[6] = dd/10 + 48;
-	deadline[7] = dd%10 + 48;
-	up->set_restricted(0);
+	deadline += yy/10 + 48;
+	deadline += yy%10 + 48;
+	deadline += '/';
+	deadline += mm/10 + 48;
+	deadline += mm%10 + 48;
+	deadline += '/';
+	deadline += dd/10 + 48;
+	deadline += dd%10 + 48;
 	if(type == 'B'){
-
-		up->set_borrowed(1);
-		up->set_borrowed_book(resource_name);
-		up->set_deadline(deadline);
+		mp->add_list(resource_name, deadline);
 		bp->set_who_borrowed(member_name);
 		bp->set_state('B');
 	}	
-	else{
-		up->set_borrowed(0);
+	else if(type == 'R'){
+		mp->del_list(resource_name);
 		bp->set_state('R');
 	}
+	else cout << "code_0 error : wrong operation" << endl;
 }
 
 void library :: code_1(ofstream &fp){
 	fp << "1\tNon exist resource." << endl;
 }
 
-void library :: code_2(ofstream &fp){
-	fp << "2\tExceeds your possible number of borrow. Possible# of borrows: 1" << endl;
+void library :: code_2(ofstream &fp, string member_name){
+	member* mp = find_member(member_name);
+	fp << "2\tExceeds your possible number of borrow. Possible# of borrows: " << mp->get_num_limit() << endl;
 }
 
 void library :: code_3(ofstream &fp){
@@ -257,11 +261,19 @@ void library :: code_6(ofstream &fp, string restricted_date){
 
 void library :: code_7(ofstream &fp, string resource_name, string member_name, string date, int delay){
 	int yy, mm, dd;
-	char restricted_date[8];
-
-	yy = (date[0]-48)*10 + date[1]-48;
-	mm = (date[3]-48)*10 + date[4]-48;
-	dd = (date[6]-48)*10 + date[7]-48;
+	string restricted_date;
+	member* mp = find_member(member_name);
+	string date_r = mp->get_restricted_date();
+	if(get_sum(date) > get_sum(mp->get_restricted_date())){
+		yy = (date[0]-48)*10 + date[1]-48;
+		mm = (date[3]-48)*10 + date[4]-48;
+		dd = (date[6]-48)*10 + date[7]-48;
+	}
+	else{
+		yy = (date_r[0]-48)*10 + date_r[1]-48;
+		mm = (date_r[3]-48)*10 + date_r[4]-48;
+		dd = (date_r[6]-48)*10 + date_r[7]-48;
+	}
 
 	dd += delay;
 	if(dd > 30){
@@ -272,19 +284,18 @@ void library :: code_7(ofstream &fp, string resource_name, string member_name, s
 		mm -= 12;
 		yy++;
 	}
-	restricted_date[0] = yy/10 + 48;
-	restricted_date[1] = yy%10 + 48;
-	restricted_date[2] = '/';
-	restricted_date[3] = mm/10 + 48;
-	restricted_date[4] = mm%10 + 48;
-	restricted_date[5] = '/';
-	restricted_date[6] = dd/10 + 48;
-	restricted_date[7] = dd%10 + 48;
+	restricted_date += yy/10 + 48;
+	restricted_date += yy%10 + 48;
+	restricted_date += '/';
+	restricted_date += mm/10 + 48;
+	restricted_date += mm%10 + 48;
+	restricted_date += '/';
+	restricted_date += dd/10 + 48;
+	restricted_date += dd%10 + 48;
 
 	find_book(resource_name)->set_state('R');
-	find_undergraduate(member_name)->set_restricted(1);
-	find_undergraduate(member_name)->set_borrowed(0);
-	find_undergraduate(member_name)->set_restricted_date(restricted_date);
+	mp->del_list(resource_name);
+	mp->set_restricted_date(restricted_date);
 	fp << "7\tDelayed return. You'll be restricted until " << restricted_date << endl;
 }
 
@@ -294,6 +305,6 @@ int library :: get_sum(string date){
 	mm = (date[3]-48)*10 + date[4]-48;
 	dd = (date[6]-48)*10 + date[7]-48;
 
-	return yy*360 + mm*12 + dd;
+	return yy*360 + mm*30 + dd;
 }
 
