@@ -17,6 +17,7 @@ class member{
 		string get_name(){
 			return name;
 		}
+<<<<<<< HEAD
 		int get_loan_period(){
 			return loan_period;
 		}
@@ -29,6 +30,24 @@ class member{
 				if(list[i] == s) return 1;
 			}
 			return 0;
+		}
+		int get_borrowed_studyroom(){
+			return borrowed_studyroom;
+		}
+		int get_borrowed_seat(){
+			return borrowed_seat;
+		}
+		int get_empty_hh(){
+			return empty_hh;
+		}
+		int get_studyroom_hh(){
+			return studyroom_hh;
+		}
+		int get_seat_hh(){
+			return seat_hh;
+		}
+		int get_howmany_seat(){
+			return howmany_seat;
 		}
 		int get_borrowed_studyroom(){
 			return borrowed_studyroom;
@@ -62,6 +81,7 @@ class member{
 		string get_borrowed_date(){
 			return borrowed_date;	
 		}
+<<<<<<< HEAD
 		void set_empty_date(string s){
 			empty_date = s;
 		void set_howmany_seat(int n){
