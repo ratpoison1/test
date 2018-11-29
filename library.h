@@ -1,47 +1,30 @@
-<<<<<<< HEAD
-=======
 #include "resource.h"
 #include "member.h"
 #include "input.h"
 #include "space.h"
->>>>>>> --need--
 #include <string>
 #include <fstream>
-<<<<<<< HEAD
 #include <sstream>
 #include <vector>
-=======
+
 #define SEAT 3
 #define STUDYROOM 10
 using namespace std;
->>>>>>> --need--
 
 class library{
 	private:
-		int num_input;
-		int num_book;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-		int num_member;
 		vector<book*> book_p;
 		vector<member*> member_p;
-=======
-		string input_list[MAX];
->>>>>>> from "read and read input.dat" to "read once and save all data"
-=======
+		vector<string> input_list;
 		int num_empty;
 		seat* seat_p[SEAT];
 		studyroom* studyroom_p[STUDYROOM];
 		string input_list[MAX];
 		string empty_list[MAX];
->>>>>>> --need--
-=======
 		int studyroom_num;
 		seat* seat_p[SEAT];
 		studyroom* studyroom_p[STUDYROOM];
 		string input_list[MAX];
->>>>>>> finish
 	public:
 		library();
 		void init();
@@ -67,22 +50,13 @@ class library{
 		void code_14(ofstream &fp, string space_type);
 		float get_sum(string date);
 		void sort_input();
-		void save_input();
+		void save_resource();
 		void save_space();
 };
 
 library :: library(){
-<<<<<<< HEAD
-<<<<<<< HEAD
-	num_member = 0;
-=======
 	num_empty = 0;
->>>>>>> --need--
-=======
-	num_book = 0;
-	num_input = 0;
 	studyroom_num = 0;
->>>>>>> finish
 	init();
 	save_input();
 	save_space();
@@ -94,7 +68,7 @@ library :: library(){
 
 book* library :: find_book(string name){
 	int i;
-	for(i = 0; i < num_book; i++){
+	for(i = 0; i < book_p.size(); i++){
 		if(name == book_p[i]->get_name()) return book_p[i];
 	}
 	return 0;
@@ -102,7 +76,7 @@ book* library :: find_book(string name){
 
 member* library :: find_member(string name){
 	int i;
-	for(i = 0; i < num_member; i++){
+	for(i = 0; i < member_p.size(); i++){
 		if(name == member_p[i]->get_name()) return member_p[i];
 	}
 	return 0;
@@ -110,28 +84,16 @@ member* library :: find_member(string name){
 
 void library :: init(){
 	ifstream fp("resource.dat");
-<<<<<<< HEAD
-<<<<<<< HEAD
 	string temp;
 	member* mp;
 	book* bp;
-=======
-=======
->>>>>>> finish
 	seat* st;
 	studyroom* sr;
->>>>>>> --need--
 	int i = 0;
 	string tok;
-<<<<<<< HEAD
-<<<<<<< HEAD
 	string member_type;
-=======
-	num_input = 0;
->>>>>>> from "read and read input.dat" to "read once and save all data"
-=======
->>>>>>> finish
 
+	// save resource.dat //
 	getline(fp, temp);
 	while(1){
 		getline(fp, temp);
@@ -140,57 +102,28 @@ void library :: init(){
 			stringstream ss(temp);
 			ss >> tok;
 			ss >> tok;
-<<<<<<< HEAD
 			bp = new book(tok);
 			book_p.push_back(bp);
-=======
-			num_book++;
->>>>>>> finish
-			i++;
 		}
 	}
 	fp.close();
-
-<<<<<<< HEAD
-	i = 0;
-<<<<<<< HEAD
-	ifstream fpi("input.dat"); // save input.dat
-	getline(fpi, temp);
-=======
->>>>>>> --need--
-	while(1){
-<<<<<<< HEAD
-=======
-		input_list[num_input] = temp;
-		num_input++;
->>>>>>> from "read and read input.dat" to "read once and save all data"
-=======
-	for(i = 0; i < STUDYROOM; i++){
-		sr = new studyroom(i);
-		studyroom_p[i] = sr;
-	}
-	for(i = 0; i < SEAT; i++){
-		st = new seat(i);
-		seat_p[i] = st;
-	}
+	// finished // 
 }
 
 void library :: save_input(){
-	char temp[MAX];
+	string temp;
 	string tok;
-	undergraduate* u;
+	member* mp;
 	int i = 0;
 	int j = 0;
 
 	ifstream fpi("input.dat"); 
-	fpi.getline(temp, MAX);
+	getline(fpi, temp);
 	while(1){
 		getline(fpi, temp);
->>>>>>> finish
 		if(fpi.eof()) break;
 		else{
-			input_list[i] = temp;
-			num_input++;
+			input_list.push_back(temp);
 			stringstream ss(temp);
 			ss >> tok;
 			ss >> tok;
@@ -199,50 +132,30 @@ void library :: save_input(){
 			ss >> tok;
 			member_type = tok;
 			ss >> tok;
-<<<<<<< HEAD
 			if(!find_member(tok)){
 				if(member_type == "Undergraduate") mp = new undergraduate(tok);
 				else if(member_type == "Graduate") mp = new graduate(tok);
 				else if(member_type == "Faculty") mp = new faculty(tok);
 				else cout << "wrong input : wrong member type" << endl;
 				member_p.push_back(mp);
-=======
-				num_member++;
-				j++;
->>>>>>> finish
 			}
 		}
-		i++;
 	}
-<<<<<<< HEAD
-	num_member = i;
-=======
->>>>>>> from "read and read input.dat" to "read once and save all data"
 	fpi.close();
 }
 
-<<<<<<< HEAD
-	ifstream fpi2("space.dat"); // save space.dat
-	getline(fpi2, temp);
-	while(1){
-		getline(fpi2, temp);
-		input_list[num_input] = temp;
-		num_input++;
-=======
 void library :: save_space(){
-	char temp[MAX];
+	string temp;
 	string tok;
-	undergraduate* u;
+	member* mp;
 
 	ifstream fpi("space.dat");
-	fpi.getline(temp, MAX);
+	getline(fpi, temp);
 	while(1){
-		fpi.getline(temp, MAX);
->>>>>>> finish
+		getline(fpi, temp);
 		if(fpi.eof()) break;
 		else{
-			input_list[num_input] = temp;
-			num_input++;
+			input_list.push_back(temp);
 			stringstream ss(temp);
 			ss >> tok;
 			ss >> tok;
@@ -250,10 +163,12 @@ void library :: save_space(){
 			ss >> tok;
 			ss >> tok;
 			ss >> tok;
-			if(!find_undergraduate(tok)){
-				u = new undergraduate(tok);
-				undergraduate_p[num_undergraduate] = u;
-				num_undergraduate++;
+			if(!find_member(tok)){
+				if(member_type == "Undergraduate") mp = new undergraduate(tok);
+				else if(member_type == "Graduate") mp = new graduate(tok);
+				else if(member_type == "Faculty") mp = new faculty(tok);
+				else cout << "wrong input : wrong member type" << endl;
+				member_p.push_back(mp);
 			}
 		}
 	}
@@ -261,14 +176,13 @@ void library :: save_space(){
 }
 
 void library :: sort_input(){
-	int i;
+	int i = 0;
 	string tok1, tok2, temp;
-	i = 0;
 	while(1){
 		stringstream ss(input_list[i]);
 		ss >> tok1;
 		i++;
-		if(i == num_input) break;
+		if(i == input_list.size()) break;
 		else{
 			stringstream ss(input_list[i]);
 			ss >> tok2;
@@ -286,12 +200,8 @@ void library :: do_work(){
 	int i = 0;
 	int delay;
 	int yy, mm, dd, yy_d, mm_d, dd_d;
-<<<<<<< HEAD
 	member* mp;
-=======
 	int hh;
-	undergraduate* up;
->>>>>>> finish
 	book* bp;
 	seat* st;
 	studyroom* sr;
@@ -302,68 +212,41 @@ void library :: do_work(){
 	string member_type;
 	string member_name;
 	string date;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
 	string past_date;
->>>>>>> finish
 
 	string space_type;
 	string time_string;
 	string space_number_string;
 	string number_of_member_string;
-	char space_number_char;
-	char number_of_member_char;
-	char time_char;
 	int space_number;
 	int number_of_member;
 	int time;
 	bool past_check = 0;
 
->>>>>>> --need--
 	string temp;
 	string tok;
 
 	ifstream inf("input.dat");
 	ofstream outf("output.dat");
 	outf << "Op_#\tReturn_code\tDescription" << endl;
-<<<<<<< HEAD
 
-
-=======
-
-
->>>>>>> from "read and read input.dat" to "read once and save all data"
-	while(1){
+	while(i < input_list.size()){
 		temp = input_list[i];
 		i++;
-<<<<<<< HEAD
-=======
-		if(i == num_input) break;
->>>>>>> from "read and read input.dat" to "read once and save all data"
-=======
-	
-	while(1){
-		temp = input_list[i];
-		i++;
-		if(i == num_input + 1) break;
->>>>>>> finish
-		else{
-			outf << i << "\t";
+		outf << i << "\t";
 
-			stringstream ss(temp);
+		stringstream ss(temp);
+		ss >> tok;
+		date = tok;
+		if(date[2] != '/'){ // in "space.dat", cutting space_type, space_number
 			ss >> tok;
-			date = tok;
-			if(date[2] != '/'){ // space.dat cutting space_type, space_number
-				ss >> tok;
-				space_type = tok;
-				ss >> tok;
-				if(tok.length() == 1){
-					space_number_char = tok[0];
-					space_number = space_number_char-48;
-				}
+			space_type = tok;
+			ss >> tok;
+			space_number_string = tok;
+			if(tok.length() == 1){
+				space_number_char = tok[0];
+				space_number = space_number_char-48;
+			}
 				else{
 					space_number_string = tok;
 					space_number = (space_number_string[0]-48)*10 + space_number_string[1]-48;
