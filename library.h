@@ -281,137 +281,110 @@ void library :: do_work(){
 		////
 
 		// resource do_work //
-		if(operation == "B"){
-			if(!bp)
-				code_1(outf);
-			else if(mp->get_num_limit() == mp->get_num_borrowed())
-				code_2(outf, member_name);
-			else if(bp->get_state() == 'B'){
-				if(bp->get_who_borrowed() == member_name)
-					code_4(outf, mp->get_borrowed_date());
+		if(date[2] == '/'){
+			if(operation == "B"){
+				if(!bp)
+					code_1(outf);
+				else if(mp->get_num_limit() == mp->get_num_borrowed())
+					code_2(outf, member_name);
+				else if(bp->get_state() == 'B'){
+					if(bp->get_who_borrowed() == member_name)
+						code_4(outf, mp->get_borrowed_date());
+					else
+						code_5(outf, find_member(bp->get_who_borrowed())->get_deadline(resource_name));
+				}
+				else if(get_sum(date) <= get_sum(mp->get_restricted_date()))
+					code_6(outf, mp->get_restricted_date());
 				else
-					code_5(outf, find_member(bp->get_who_borrowed())->get_deadline(resource_name));
+					code_0(outf, resource_name, member_name, 'B', date);
 			}
-			else if(get_sum(date) <= get_sum(mp->get_restricted_date()))
-				code_6(outf, mp->get_restricted_date());
-			else
-				code_0(outf, resource_name, member_name, 'B', date);
-		}
-		else{
-			if(!bp){
-				code_1(outf);
-			}
-			else if(!mp->check_book(resource_name))
-				code_3(outf);
 			else{
-				delay = get_sum(date) - get_sum(mp->get_deadline(resource_name));
-				if(delay > 0)
-					code_7(outf, resource_name, member_name, date, delay);
-				else
-					code_0(outf, resource_name, member_name, 'R', date);
+				if(!bp){
+					code_1(outf);
+				}
+				else if(!mp->check_book(resource_name))
+					code_3(outf);
+				else{
+					delay = get_sum(date) - get_sum(mp->get_deadline(resource_name));
+					if(delay > 0)
+						code_7(outf, resource_name, member_name, date, delay);
+					else
+						code_0(outf, resource_name, member_name, 'R', date);
+				}
+			}
+		}
 		////
 
-			if(date[2] == '/'){
+		// space do_word //
+		else{ 
+			hh = (date[11]-48)*10 + date[12]-48;
+			if(past_check) refresh(date, past_date); // refresh	
+			if(space_type == "StudyRoom"){
 				if(operation == 'B'){
-					if(!bp) code_1(outf);
-					else if(up->get_borrowed()) code_2(outf);
-					else if(bp->get_state() == 'B'){
-						if(bp->get_who_borrowed() == member_name)
-							code_4(outf, up->get_borrowed_date());
-						else
-							code_5(outf, find_undergraduate(bp->get_who_borrowed())->get_deadline());
-					}
-					else if(up->get_restricted())
-						if(get_sum(date) - get_sum(up->get_restricted_date()) <= 0)
-							code_6(outf, up->get_restricted_date());
-						else
-							code_0(outf, resource_name, member_name, 'B', date);
-					else
-						code_0(outf, resource_name, member_name, 'B', date);
+					if(space_number > STUDYROOM) code_8(outf);
+					else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_studyroom() != 0) code_11(outf);
+					else if(number_of_member > 6) code_12(outf);
+					else if(time > 6) code_13(outf);
+					else if(studyroom_num == 10) code_14(outf, space_type);
+					else code_0_s(outf, space_type, member_name, 'B', date, time, space_number, number_of_member);
+				}
+				else if(operation == 'R'){
+					if(space_number > STUDYROOM) code_8(outf);
+					else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_studyroom() == 0) code_10(outf);
+					else code_0_s(outf, space_type, member_name, 'R', date, time, space_number, number_of_member);	
+				}
+				else if(operation == 'E'){
+					if(space_number > STUDYROOM) code_8(outf);
+					else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_studyroom() == 0) code_10(outf);
+					else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
 				}
 				else{
-					if(!up->get_borrowed()) code_3(outf);
-					else if(up->get_borrowed_book() != resource_name) code_3(outf);
-					else{
-						delay = get_sum(date) - get_sum(up->get_deadline());
-						if(delay > 0)	
-							code_7(outf, resource_name, member_name, date, delay);
-						else
-							code_0(outf, resource_name, member_name, 'R', date);
-					}
+					if(space_number > STUDYROOM) code_8(outf);
+					else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_studyroom() == 0) code_10(outf);
+					else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
 				}
 			}
-
-			// space do_word //
-			else{ 
-				hh = (date[11]-48)*10 + date[12]-48;
-				if(past_check) refresh(date, past_date); // refresh	
-				if(space_type == "StudyRoom"){
-					if(operation == 'B'){
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() != 0) code_11(outf);
-						else if(number_of_member > 6) code_12(outf);
-						else if(time > 6) code_13(outf);
-						else if(studyroom_num == 10) code_14(outf, space_type);
-						else code_0_s(outf, space_type, member_name, 'B', date, time, space_number, number_of_member);
-					}
-					else if(operation == 'R'){
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'R', date, time, space_number, number_of_member);	
-					}
-					else if(operation == 'E'){
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
-					}
-					else{
-						if(space_number > STUDYROOM) code_8(outf);
-						else if(hh < 9 || hh > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
-					}
+			else if(space_type == "Seat"){
+				if(operation == 'B'){
+					if(space_number > SEAT) code_8(outf);
+					else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
+					else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_seat() != 0) code_11(outf);
+					else if(number_of_member > 6) code_12(outf);
+					else if(time > 3) code_13(outf);
+					else if(sr->get_borrowed_number() + number_of_member > 50) code_14(outf, space_type);
+					else code_0_s(outf, space_type, member_name, 'B', date, time, space_number, number_of_member);
 				}
-				else if(space_type == "Seat"){
-					if(operation == 'B'){
-						if(space_number > SEAT) code_8(outf);
-						else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
-						else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_seat() != 0) code_11(outf);
-						else if(number_of_member > 6) code_12(outf);
-						else if(time > 3) code_13(outf);
-						else if(sr->get_borrowed_number() + number_of_member > 50) code_14(outf, space_type);
-						else code_0_s(outf, space_type, member_name, 'B', date, time, space_number, number_of_member);
-					}
-					else if(operation == 'R'){
-						if(space_number > SEAT) code_8(outf);
-						else if(time < 9 || time > 18) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'R', date, time, space_number, number_of_member);	
-					}
-					else if(operation == 'E'){
-						if(space_number > SEAT) code_8(outf);
-						else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
-						else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
-					}
-					else{
-						if(space_number > SEAT) code_8(outf);
-						else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
-						else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
-						else if(up->get_borrowed_studyroom() == 0) code_10(outf);
-						else code_0_s(outf, space_type, member_name, 'C', date, time, space_number, number_of_member);	
-					}
->>>>>>> --need--
+				else if(operation == 'R'){
+					if(space_number > SEAT) code_8(outf);
+					else if(time < 9 || time > 18) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_studyroom() == 0) code_10(outf);
+					else code_0_s(outf, space_type, member_name, 'R', date, time, space_number, number_of_member);	
 				}
-				else cout << "wrong input, space_type : " << space_type << endl;
+				else if(operation == 'E'){
+					if(space_number > SEAT) code_8(outf);
+					else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
+					else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_studyroom() == 0) code_10(outf);
+					else code_0_s(outf, space_type, member_name, 'E', date, time, space_number, number_of_member);	
+				}
+				else{
+					if(space_number > SEAT) code_8(outf);
+					else if(space_number == 2 && (hh < 9 || hh > 21)) code_9(outf, space_type, space_number);
+					else if(space_number == 3 && (hh < 9 || hh > 19)) code_9(outf, space_type, space_number);
+					else if(up->get_borrowed_studyroom() == 0) code_10(outf);
+					else code_0_s(outf, space_type, member_name, 'C', date, time, space_number, number_of_member);	
+				}
+>>>>>> --need--
 			}
-			// end //
+			else cout << "wrong input, space_type : " << space_type << endl;
 		}
+		// end //
+
 		past_date = date;
 		past_check = 1;
 	}
@@ -442,7 +415,6 @@ void library :: code_0(ofstream &fp, string resource_name, string member_name, c
 		mm -= 12;
 		yy++;
 	}
-<<<<<<< HEAD
 
 	deadline += yy/10 + 48;
 	deadline += yy%10 + 48;
@@ -454,21 +426,6 @@ void library :: code_0(ofstream &fp, string resource_name, string member_name, c
 	deadline += dd%10 + 48;
 	if(type == 'B'){
 		mp->add_list(resource_name, deadline);
-=======
-	deadline[0] = yy/10 + 48;
-	deadline[1] = yy%10 + 48;
-	deadline[2] = '/';
-	deadline[3] = mm/10 + 48;
-	deadline[4] = mm%10 + 48;
-	deadline[5] = '/';
-	deadline[6] = dd/10 + 48;
-	deadline[7] = dd%10 + 48;
-	up->set_restricted(0);
-	if(type == 'B'){
-		up->set_borrowed(1);
-		up->set_borrowed_book(resource_name);
-		up->set_deadline(deadline);
->>>>>>> finish
 		bp->set_who_borrowed(member_name);
 		bp->set_state('B');
 	}	
