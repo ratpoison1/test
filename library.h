@@ -7,24 +7,16 @@
 #include <sstream>
 #include <vector>
 
-#define SEAT 3
-#define STUDYROOM 10
 using namespace std;
 
 class library{
 	private:
 		vector<book*> book_p;
 		vector<member*> member_p;
+		vector<space*> space_p;
 		vector<string> input_list;
 		int num_empty;
-		seat* seat_p[SEAT];
-		studyroom* studyroom_p[STUDYROOM];
-		string input_list[MAX];
 		string empty_list[MAX];
-		int studyroom_num;
-		seat* seat_p[SEAT];
-		studyroom* studyroom_p[STUDYROOM];
-		string input_list[MAX];
 	public:
 		library();
 		void init();
@@ -203,8 +195,7 @@ void library :: do_work(){
 	member* mp;
 	int hh;
 	book* bp;
-	seat* st;
-	studyroom* sr;
+	space* sp;
 
 	string operation;
 	string resource_type;
@@ -238,101 +229,87 @@ void library :: do_work(){
 		stringstream ss(temp);
 		ss >> tok;
 		date = tok;
-		if(date[2] != '/'){ // in "space.dat", cutting space_type, space_number
+
+		// in "space.dat", cutting space_type, space_number //
+		if(date[2] != '/'){
 			ss >> tok;
 			space_type = tok;
 			ss >> tok;
 			space_number_string = tok;
-			if(tok.length() == 1){
-				space_number_char = tok[0];
-				space_number = space_number_char-48;
-			}
-				else{
-					space_number_string = tok;
-					space_number = (space_number_string[0]-48)*10 + space_number_string[1]-48;
-				}
-				if(space_type == "StudyRoom")
-					sr = studyroom_p[space_number-1];
-				else
-					st = seat_p[space_number-1];
-			}
-			// input.h cutting resource_type, resource_name //
-			else{ 
-				ss >> tok;
-				resource_type = tok;
-				ss >> tok;
-				resource_name = tok;
-				bp = find_book(resource_name);
-			}
+			if(space_number_string.length() == 1)
+				space_number = space_number[0]-48;
+			elsei
+				space_number = (space_number_string[0]-48)*10 + space_number_string[1]-48;
+			sp = space_p[space_number-1];
+		}
+		////
+
+		// in "input.h", cutting resource_type, resource_name //
+		else{ 
 			ss >> tok;
-			operation = tok;
+			resource_type = tok;
 			ss >> tok;
-			member_type = tok;
-			ss >> tok;
-			member_name = tok;
-<<<<<<< HEAD
-<<<<<<< HEAD
-	
-			mp = find_member(member_name);
+			resource_name = tok;i
 			bp = find_book(resource_name);
+		}
+		////
+
+		ss >> tok;
+		operation = tok;
+		ss >> tok;
+		member_type = tok;
+		ss >> tok;
+		member_name = tok;
+	
+		mp = find_member(member_name);
 		
-			if(operation == "B"){
-				if(!bp)
-					code_1(outf);
-				else if(mp->get_num_limit() == mp->get_num_borrowed())
-					code_2(outf, member_name);
-				else if(bp->get_state() == 'B'){
-					if(bp->get_who_borrowed() == member_name)
-						code_4(outf, mp->get_borrowed_date());
-					else
-						code_5(outf, find_member(bp->get_who_borrowed())->get_deadline(resource_name));
-				}
-				else if(get_sum(date) <= get_sum(mp->get_restricted_date()))
-					code_6(outf, mp->get_restricted_date());
+		// in "space.h", cutting number_of_member, time //
+		if(date[2] != '/' && operation == 'B'){
+			ss >> tok;
+			number_of_member_string == tok;
+			if(number_of_member_string.length() == 1)
+				number_of_member = number_of_member_string[0]-48;
+			else
+				number_of_member = (number_of_member_string[0]-48)*10 + number_of_member_string[1]-48;
+			ss >> tok;
+			time_string = tok;
+			if(tok.length() == 1)
+				time = time_string[0] - 48;
+			else
+				time = (time_string[0]-48)*10 + time_string[1]-48;
+		}
+		////
+
+		// resource do_work //
+		if(operation == "B"){
+			if(!bp)
+				code_1(outf);
+			else if(mp->get_num_limit() == mp->get_num_borrowed())
+				code_2(outf, member_name);
+			else if(bp->get_state() == 'B'){
+				if(bp->get_who_borrowed() == member_name)
+					code_4(outf, mp->get_borrowed_date());
 				else
-					code_0(outf, resource_name, member_name, 'B', date);
+					code_5(outf, find_member(bp->get_who_borrowed())->get_deadline(resource_name));
 			}
+			else if(get_sum(date) <= get_sum(mp->get_restricted_date()))
+				code_6(outf, mp->get_restricted_date());
+			else
+				code_0(outf, resource_name, member_name, 'B', date);
+		}
+		else{
+			if(!bp){
+				code_1(outf);
+			}
+			else if(!mp->check_book(resource_name))
+				code_3(outf);
 			else{
-				if(!bp){
-					code_1(outf);
-				}
-				else if(!mp->check_book(resource_name))
-					code_3(outf);
-				else{
-					delay = get_sum(date) - get_sum(mp->get_deadline(resource_name));
-					if(delay > 0)
-						code_7(outf, resource_name, member_name, date, delay);
-					else
-						code_0(outf, resource_name, member_name, 'R', date);
-=======
-=======
-			// end //
->>>>>>> finish
-
-			// space.h cutting number_of_member, time //
-			if(date[2] != '/' && operation == 'B'){
-				ss >> tok;
-				if(tok.length() == 1){
-					number_of_member_char = tok[0];
-					number_of_member = number_of_member_char-48;
-				}
-				else{
-					number_of_member_string = tok;
-					number_of_member = (number_of_member_string[0]-48)*10 + number_of_member_string[1]-48;
-				}
-				ss >> tok;
-				if(tok.length() == 1){
-					time_char = tok[0];
-					time = time_char - 48;
-				}
-				else{
-					time_string = tok;
-					time = (time_string[0]-48)*10 + time_string[1]-48;
-				}
-			}
-			// end //
-			up = find_undergraduate(member_name);
-
+				delay = get_sum(date) - get_sum(mp->get_deadline(resource_name));
+				if(delay > 0)
+					code_7(outf, resource_name, member_name, date, delay);
+				else
+					code_0(outf, resource_name, member_name, 'R', date);
+		////
 
 			if(date[2] == '/'){
 				if(operation == 'B'){
