@@ -1,6 +1,5 @@
 class space{
 	protected:
-<<<<<<< HEAD
 		int number;
 		int borrowed_number;
 		int limit;
@@ -15,7 +14,6 @@ class space{
 
 class studyroom : public space{
 	private:
-<<<<<<< HEAD
 	public:
 		studyroom(int n){
 			number = n;
@@ -26,7 +24,6 @@ class studyroom : public space{
 
 class seat : public space{
 	private:
-<<<<<<< HEAD
 	public:
 		seat(int n){
 			number = n;

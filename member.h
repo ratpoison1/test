@@ -1,3 +1,5 @@
+ #include <vector>
+
 class member{
 	protected:
 		int loan_period;
@@ -12,12 +14,10 @@ class member{
 		int studyroom_hh;
 		int seat_hh;
 		int empty_hh;
-		int howmany_seat;
 	public:
 		string get_name(){
 			return name;
 		}
-<<<<<<< HEAD
 		int get_loan_period(){
 			return loan_period;
 		}
@@ -46,26 +46,8 @@ class member{
 		int get_seat_hh(){
 			return seat_hh;
 		}
-		int get_howmany_seat(){
-			return howmany_seat;
-		}
-		int get_borrowed_studyroom(){
-			return borrowed_studyroom;
-		}
-		int get_borrowed_seat(){
-			return borrowed_seat;
-		}
-		int get_empty_hh(){
-			return empty_hh;
-		}
-		int get_studyroom_hh(){
-			return studyroom_hh;
-		}
-		int get_seat_hh(){
-			return seat_hh;
-		}
-		int get_howmany_seat(){
-			return howmany_seat;
+		int get_num_borrowed(){
+			return list.size();
 		}
 		string get_restricted_date(){
 			return restricted_date;
@@ -81,12 +63,6 @@ class member{
 		string get_borrowed_date(){
 			return borrowed_date;	
 		}
-<<<<<<< HEAD
-		void set_empty_date(string s){
-			empty_date = s;
-		void set_howmany_seat(int n){
-			howmany_seat = n;
-		}
 		void set_empty_hh(int n){
 			empty_hh = n;
 		}
@@ -101,12 +77,6 @@ class member{
 		}
 		void set_borrowed_seat(int n){
 			borrowed_seat = n;
-		}
-		void set_borrowed(bool n){
-			borrowed = n;
-		}
-		void set_restricted(bool n){
-			restricted = n;
 		}
 		void set_restricted_date(string s){
 			restricted_date = s;
@@ -136,21 +106,14 @@ class undergraduate : public member{
 	public:
 		undergraduate(string n){
 			name = n;
-			borrowed = 0;
+			loan_period = 14;
+			num_limit = 1;
+			restricted_date = "000000";
 			borrowed_studyroom = 0;
 			borrowed_seat = 0;
 		}
 };
 
-class undergraduate : public member{
-	public:
-		undergraduate(string n){
-			name = n;
-			loan_period = 14;
-			num_limit = 1;
-			restricted_date = "000000";
-		}
-};
 class graduate : public member{
 	public:
 		graduate(string n){
@@ -158,6 +121,8 @@ class graduate : public member{
 			loan_period = 30;
 			num_limit = 5;
 			restricted_date = "000000";
+			borrowed_studyroom = 0;
+			borrowed_seat = 0;
 		}
 };
 class faculty : public member{
@@ -167,6 +132,8 @@ class faculty : public member{
 			loan_period = 30;
 			num_limit = 10;
 			restricted_date = "000000";
+			borrowed_studyroom = 0;
+			borrowed_seat = 0;
 		}
 };
 
