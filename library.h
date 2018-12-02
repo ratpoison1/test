@@ -140,11 +140,16 @@ void library :: save_input(){
 			member_type = tok;
 			ss >> tok;
 			if(!find_member(tok)){
-				if(member_type == "Undergraduate") mp = new undergraduate(tok);
-				else if(member_type == "Graduate") mp = new graduate(tok);
-				else if(member_type == "Faculty") mp = new faculty(tok);
-				else cout << "wrong input : wrong member type" << endl;
-				member_p.push_back(mp);
+				try{
+					if(member_type == "Undergraduate") mp = new undergraduate(tok);
+					else if(member_type == "Graduate") mp = new graduate(tok);
+					else if(member_type == "Faculty") mp = new faculty(tok);
+					else throw member_type;
+					member_p.push_back(mp);
+				}
+				catch(string member_type){
+					cout << "wrong input : wrong member type" << endl;
+				}
 			}
 		}
 		i++;
@@ -177,7 +182,7 @@ void library :: save_space(){
 				if(member_type == "Undergraduate") mp = new undergraduate(tok);
 				else if(member_type == "Graduate") mp = new graduate(tok);
 				else if(member_type == "Faculty") mp = new faculty(tok);
-				else cout << "wrong input : wrong member type" << endl;
+				else cout << "wrong input : wrong member type : " << member_type << endl;
 				member_p.push_back(mp);
 			}
 		}
