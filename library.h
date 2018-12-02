@@ -13,7 +13,7 @@ using namespace std;
 
 class library{
 	private:
-		vector<book*> book_p;
+		vector<resource*> book_p;
 		vector<member*> member_p;
 		vector<space*> space_p;
 		vector<string> input_list;
@@ -22,7 +22,7 @@ class library{
 		void init();
 		void do_work();
 		void refresh(string date, string past_date);
-		book* find_book(string name);
+		resource* find_book(string name);
 		member* find_member(string name);
 		void code_0(ofstream &fp, string resource_name, string member_name, char type, string date);
 		void code_0_s(ofstream &fp, string space_type, string member_name, char type, string date, int time, int space_number, int number_of_member);
@@ -40,7 +40,9 @@ class library{
 		void code_12(ofstream &fp);
 		void code_13(ofstream &fp);
 		void code_14(ofstream &fp, string space_type);
-		float get_sum(string date);
+		void code_15(ofstream &fp);
+		void code_16(ofstream &fp);
+		int get_sum(string date);
 		void sort_input();
 		void save_resource();
 		void save_input();
@@ -57,7 +59,7 @@ library :: library(){
 }
 
 
-book* library :: find_book(string name){
+resource* library :: find_book(string name){
 	int i;
 	for(i = 0; i < book_p.size(); i++){
 		if(name == book_p[i]->get_name()) return book_p[i];
@@ -77,9 +79,10 @@ void library :: init(){
 	ifstream fp("resource.dat");
 	string temp;
 	space* sp;
-	book* bp;
+	resource* bp;
 	int i = 0;
 	string tok;
+	string resource_type;
 
 	// save resource.dat //
 	getline(fp, temp);
@@ -89,8 +92,11 @@ void library :: init(){
 		else{
 			stringstream ss(temp);
 			ss >> tok;
+			resource_type = tok;
 			ss >> tok;
-			bp = new book(tok);
+			if(resource_type == "Magazine") bp = new magazine(tok);
+			else if(resource_type == "E-book") bp = new e_book(tok);
+			else if(resource_type == "Book") bp = new book(tok);
 			book_p.push_back(bp);
 		}
 	}
@@ -191,7 +197,7 @@ void library :: sort_input(){
 			stringstream ss(input_list[i]);
 			ss >> tok2;
 		}
-		if(get_sum(tok1) > get_sum(tok2)){
+		if(get_sum(tok1)/100 > get_sum(tok2)/100){
 			temp = input_list[i-1];
 			input_list[i-1] = input_list[i];
 			input_list[i] = temp;
@@ -202,11 +208,12 @@ void library :: sort_input(){
 
 void library :: do_work(){
 	int i = 0;
+	int jdx = 0;
 	int delay;
 	int yy, mm, dd, yy_d, mm_d, dd_d;
 	member* mp;
 	int hh;
-	book* bp;
+	resource* bp;
 	space* sp;
 
 	string operation;
@@ -215,12 +222,13 @@ void library :: do_work(){
 	string member_type;
 	string member_name;
 	string date;
-	string past_date;
+	string past_date = "NO";
 
 	string space_type;
 	string time_string;
 	string space_number_string;
 	string number_of_member_string;
+	string tok2;
 	int space_number;
 	int number_of_member;
 	int time;
@@ -228,16 +236,16 @@ void library :: do_work(){
 
 	string temp;
 	string tok;
+	string yydd_s;
 
 	ifstream inf("input.dat");
 	ofstream outf("output.dat");
 	outf << "Op_#\tReturn_code\tDescription" << endl;
 
-	while(i < input_list.size()){
-		temp = input_list[i];
-		i++;
-		outf << i << "\t";
-
+	while(jdx < input_list.size()){
+		temp = input_list[jdx];
+		jdx++;
+		outf << jdx << "\t";
 		stringstream ss(temp);
 		ss >> tok;
 		date = tok;
@@ -248,10 +256,11 @@ void library :: do_work(){
 			space_type = tok;
 			ss >> tok;
 			space_number_string = tok;
-			if(space_number_string.length() == 1)
-				space_number = space_number_string[0]-48;
-			else
-				space_number = (space_number_string[0]-48)*10 + space_number_string[1]-48;
+			space_number = 0;
+			for(i = 0; i < space_number_string.length(); i++){
+				space_number *= 10;
+				space_number += space_number_string[i] - 48;
+			}
 			sp = space_p[space_number-1];
 		}
 		////
@@ -261,8 +270,18 @@ void library :: do_work(){
 			ss >> tok;
 			resource_type = tok;
 			ss >> tok;
+			if(tok[tok.length()-1] == ']'){
+				tok2 = tok;
+				tok = tok.substr(0, tok.length()-7);
+				yydd_s = tok2.substr(tok2.length()-6, 5);
+			}
 			resource_name = tok;
 			bp = find_book(resource_name);
+			int abcd;
+			if(resource_type == "Magazine"){
+				abcd = ((yydd_s[0]-48)*10 + yydd_s[1]-48)*360 + ((yydd_s[3]-48)*10 + yydd_s[4]-48)*30;
+				bp->set_yydd_del(abcd);
+			}
 		}
 		////
 
@@ -278,26 +297,29 @@ void library :: do_work(){
 		// in "space.h", cutting number_of_member, time //
 		if(date[2] != '/' && operation == "B"){
 			ss >> tok;
-			number_of_member_string == tok;
-			if(number_of_member_string.length() == 1)
-				number_of_member = number_of_member_string[0]-48;
-			else
-				number_of_member = (number_of_member_string[0]-48)*10 + number_of_member_string[1]-48;
+			number_of_member_string = tok;
+			number_of_member = 0;
+			for(i = 0; i < number_of_member_string.length(); i++){
+				number_of_member *= 10;
+				number_of_member += number_of_member_string[i] - 48;
+			}
 			ss >> tok;
 			time_string = tok;
-			if(tok.length() == 1)
-				time = time_string[0] - 48;
-			else
-				time = (time_string[0]-48)*10 + time_string[1]-48;
+			time = 0;
+			for(i = 0; i < time_string.length(); i++){
+				time *= 10;
+				time += time_string[i] - 48;
+			}
 		}
 		////
 
 		// resource do_work //
 		if(date[2] == '/'){
+			for(i = 0; i < member_p.size(); i++) member_p[i]->refresh_e(get_sum(date)/100);
 			if(operation == "B"){
 				if(!bp)
 					code_1(outf);
-				else if(mp->get_num_limit() == mp->get_num_borrowed())
+				else if((resource_type != "E-book") && (mp->get_num_limit() == mp->get_num_borrowed()))
 					code_2(outf, member_name);
 				else if(bp->get_state() == 'B'){
 					if(bp->get_who_borrowed() == member_name)
@@ -307,6 +329,10 @@ void library :: do_work(){
 				}
 				else if(get_sum(date) <= get_sum(mp->get_restricted_date()))
 					code_6(outf, mp->get_restricted_date());
+				else if(mp->get_cap() + bp->get_size() > mp->get_cap_limit())
+					code_15(outf);
+				else if(resource_type == "Magazine" && (get_sum(date)/100 - bp->get_yydd_del() > 360))
+					code_16(outf);
 				else
 					code_0(outf, resource_name, member_name, 'B', date);
 			}
@@ -317,8 +343,8 @@ void library :: do_work(){
 				else if(!mp->check_book(resource_name))
 					code_3(outf);
 				else{
-					delay = get_sum(date) - get_sum(mp->get_deadline(resource_name));
-					if(delay > 0)
+					delay = (get_sum(date) - get_sum(mp->get_deadline(resource_name)))/100;
+					if((delay > 0) && (resource_type != "E-book"))
 						code_7(outf, resource_name, member_name, date, delay);
 					else
 						code_0(outf, resource_name, member_name, 'R', date);
@@ -330,13 +356,14 @@ void library :: do_work(){
 		// space do_word //
 		else{
 			int studyroom_check = 1;
-			if(space_number < 9) sp = space_p[space_number-1];
-			else sp = space_p[space_number+9];
+			if(space_type == "StudyRoom") sp = space_p[space_number-1];
+			else if(space_type == "Seat") sp = space_p[space_number+9];
+			else cout << "space do word error : wrong space_type : " << space_type << endl;
 			hh = (date[11]-48)*10 + date[12]-48;
-			if(past_check) refresh(date, past_date); // refresh	
-			for(i = 0; i < member_p.size(); i++) // check remain studyroom
-				studyroom_check *= member_p[i]->get_borrowed_studyroom();
-
+			if(past_date != "NO" && (get_sum(date) > get_sum(past_date)))
+				refresh(date, past_date); // refresh	
+			for(i = 0; i < STUDYROOM; i++) // check remain studyroom
+				studyroom_check *= space_p[i]->get_borrowed_number();
 			if(space_type == "StudyRoom"){
 				if(operation == "B"){
 					if(space_number > STUDYROOM) code_8(outf);
@@ -344,7 +371,8 @@ void library :: do_work(){
 					else if(mp->get_borrowed_studyroom() != 0) code_11(outf);
 					else if(number_of_member > 6) code_12(outf);
 					else if(time > 6) code_13(outf);
-					else if(!studyroom_check) code_14(outf, space_type);
+					else if(studyroom_check != 0) 
+						code_14(outf, space_type);
 					else code_0_s(outf, space_type, member_name, 'B', date, time, space_number, number_of_member);
 				}
 				else if(operation == "R"){
@@ -400,18 +428,17 @@ void library :: do_work(){
 				}
 			}
 			else cout << "wrong input, space_type : " << space_type << endl;
+			past_date = date;
 		}
 		////
 
-		past_date = date;
-		past_check = 1;
 	}
 	outf.close();
 }
 
 void library :: code_0(ofstream &fp, string resource_name, string member_name, char type, string date){
 	member* mp;
-	book* bp;
+	resource* bp;
 	string deadline;
 	int yy, mm, dd;
 
@@ -443,12 +470,12 @@ void library :: code_0(ofstream &fp, string resource_name, string member_name, c
 	deadline += dd/10 + 48;
 	deadline += dd%10 + 48;
 	if(type == 'B'){
-		mp->add_list(resource_name, deadline);
+		mp->add_list(resource_name, deadline, bp->get_size());
 		bp->set_who_borrowed(member_name);
-		bp->set_state('B');
+		if(bp->get_size() == 0)	bp->set_state('B');
 	}	
 	else if(type == 'R'){
-		mp->del_list(resource_name);
+		mp->del_list(resource_name, bp->get_size());
 		bp->set_state('R');
 	}
 	else cout << "code_0 error : wrong operation" << endl;
@@ -476,19 +503,21 @@ void library :: code_0_s(ofstream &fp, string space_type, string member_name, ch
 			if(hh > 18) hh = 18;
 			if(hh_e > 18) hh_e = 18;
 		}
-		else cout << "code_0_s : time limit space_number error" << endl;
+		else if(space_number != 1) 
+			cout << "code_0_s : time limit space_number error : " << space_number <<  endl;
 	}
-
-	int i;
 	if(space_type == "StudyRoom"){
 		sp = space_p[space_number-1];
 			
 		if(type == 'B'){
 			mp->set_borrowed_studyroom(space_number);
 			mp->set_studyroom_hh(hh);
+			sp->set_borrowed_number(number_of_member);
 		}	
-		else if(type == 'R')
+		else if(type == 'R'){
 			mp->set_borrowed_studyroom(0);
+			sp->set_borrowed_number(0);
+		}
 	}
 	else if(space_type == "Seat"){
 		sp = space_p[space_number+9];
@@ -510,7 +539,7 @@ void library :: code_0_s(ofstream &fp, string space_type, string member_name, ch
 			mp->set_seat_hh(mp->get_empty_hh());
 		}
 	}
-	else fp << "code_0_s space_type error. space_type : " << space_type << endl;
+	else cout << "code_0_s : space_type error : " << space_type << endl;
 	fp << "0\tSuccess." << endl;
 }
 
@@ -544,6 +573,8 @@ void library :: code_7(ofstream &fp, string resource_name, string member_name, s
 	string restricted_date;
 	member* mp = find_member(member_name);
 	string date_r = mp->get_restricted_date();
+	resource* bp = find_book(resource_name);
+
 	if(get_sum(date) > get_sum(mp->get_restricted_date())){
 		yy = (date[0]-48)*10 + date[1]-48;
 		mm = (date[3]-48)*10 + date[4]-48;
@@ -574,7 +605,7 @@ void library :: code_7(ofstream &fp, string resource_name, string member_name, s
 	restricted_date += dd%10 + 48;
 
 	find_book(resource_name)->set_state('R');
-	mp->del_list(resource_name);
+	mp->del_list(resource_name, bp->get_size());
 	mp->set_restricted_date(restricted_date);
 	fp << "7\tDelayed return. You'll be restricted until " << restricted_date << endl;
 }
@@ -614,6 +645,7 @@ void library :: code_14(ofstream &fp, string space_type){
 	fp << "14\tThere is no remain space. This space is available after ";
 	int i, hh, time, temp;
 	time = 24;
+	temp = 24;
 
 	for(i = 0; i < member_p.size(); i++){
 		if(space_type == "StudyRoom"){
@@ -629,20 +661,28 @@ void library :: code_14(ofstream &fp, string space_type){
 	fp << time << endl;
 }
 
-float library :: get_sum(string date){
+void library :: code_15(ofstream &fp){
+	fp << "15\tExceeds your storage capacity." << endl;
+}
+
+void library :: code_16(ofstream &fp){
+	fp << "16\tPreviously borrowed books are overdue, so borrow is limited." << endl;
+}
+
+int library :: get_sum(string date){
 	int yy, mm, dd, hh;
 	if(date[2] == '/'){
 		yy = (date[0]-48)*10 + date[1]-48;
 		mm = (date[3]-48)*10 + date[4]-48;
 		dd = (date[6]-48)*10 + date[7]-48;
-		return yy*360 + mm*30 + dd;
+		return (yy*360 + mm*30 + dd)*100;
 	}
 	else{
 		yy = (date[2]-48)*10 + date[3]-48;
 		mm = (date[5]-48)*10 + date[6]-48;
 		dd = (date[8]-48)*10 + date[9]-48;
 		hh = (date[11]-48)*10 + date[12]-48;
-		return yy*360 + mm*30 + dd + hh/100;
+		return (yy*360 + mm*30 + dd)*100 + hh;
 	}
 }
 
@@ -652,11 +692,11 @@ void library :: refresh(string date, string past_date){
 	member* mp;
 	space* sp;
 	hh = (date[11]-48)*10 + date[12]-48;
-	if(get_sum(date) - get_sum(past_date) < 0.5){
+	if(get_sum(date) - get_sum(past_date) < 50){
 		for(i = 0; i < member_p.size(); i++){
 			mp = member_p[i];
 			if((mp->get_borrowed_seat() != 0) && (hh >= mp->get_seat_hh())){
-				sp = space_p[mp->get_borrowed_seat()-1];
+				sp = space_p[mp->get_borrowed_seat()+9];
 				mp->set_borrowed_seat(0);
 				sp->set_borrowed_number(sp->get_borrowed_number()-1);
 			}
@@ -673,6 +713,7 @@ void library :: refresh(string date, string past_date){
 			mp->set_borrowed_studyroom(0);
 			mp->set_borrowed_seat(0);
 		}
-		for(i = 0; i < SEAT; i++) space_p[i]->set_borrowed_number(0);
+		for(i = 0; i < SEAT + STUDYROOM; i++) space_p[i]->set_borrowed_number(0);
 	}
 }
+
