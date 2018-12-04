@@ -9,7 +9,8 @@ class member{
 		string restricted_date;
 		vector<string> deadline;
 		vector<string> deadline_e;
-		string borrowed_date;
+		vector<string> borrowed_date;
+		vector<string> borrowed_date_e;
 		vector<string> list;
 		vector<string> list_e;
 		vector<int> size_e;
@@ -33,6 +34,13 @@ class member{
 			int i;
 			for(i = 0; i < list.size(); i++){
 				if(list[i] == s) return 1;
+			}
+			return 0;
+		}
+		bool check_book_e(string s){
+			int i;
+			for(i = 0; i < list_e.size(); i++){
+				if(list_e[i] == s) return 1;
 			}
 			return 0;
 		}
@@ -60,6 +68,9 @@ class member{
 		int get_cap(){
 			return cap;
 		}
+		string get_deadline_i(int i){
+			return deadline[i];
+		}
 		string get_restricted_date(){
 			return restricted_date;
 		}
@@ -71,8 +82,17 @@ class member{
 			}
 			return "//";
 		}
-		string get_borrowed_date(){
-			return borrowed_date;	
+		string get_borrowed_date(string s){
+			int i;
+			for(i = 0; i < list.size(); i++){
+				if(list[i] == s) return borrowed_date[i];	
+			}
+		}
+		string get_borrowed_date_e(string s){
+			int i;
+			for(i = 0; i < list_e.size(); i++){
+				if(list_e[i] == s) return borrowed_date_e[i];	
+			}
 		}
 		void refresh_e(int date){
 			int i, dead;
@@ -82,9 +102,7 @@ class member{
 				mm = (deadline_e[i][3]-48)*10 + deadline_e[i][4]-48;
 				dd = (deadline_e[i][6]-48)*10 + deadline_e[i][7]-48;
 				dead = yy*360 + mm*30 + dd;
-				if(date >= dead) {
-					cout << "deleted : " << list_e[i] << endl;
-					cout << "date dead " << date << " " << dead << endl;
+				if(date >= dead){
 					del_list(list_e[i], size_e[i]); 
 				}
 			}
@@ -107,18 +125,17 @@ class member{
 		void set_restricted_date(string s){
 			restricted_date = s;
 		}
-		void set_borrowed_date(string s){
-			borrowed_date = s;
-		}
-		void add_list(string resource_name, string dl, int size){
+		void add_list(string resource_name, string dl, int size, string date){
 			if(size == 0){
 				list.push_back(resource_name);
 				deadline.push_back(dl);
+				borrowed_date.push_back(date);
 			}
 			else{
 				list_e.push_back(resource_name);
-				deadline_e.push_back(dl);
 				size_e.push_back(size);
+				deadline_e.push_back(dl);
+				borrowed_date_e.push_back(date);
 				cap += size;
 			}
 		}
@@ -129,6 +146,7 @@ class member{
 					if(list[i] == s){
 						list.erase(list.begin() + i);
 						deadline.erase(deadline.begin() + i);
+						borrowed_date.erase(borrowed_date.begin() + i);
 						return;
 					}
 				}
@@ -137,8 +155,9 @@ class member{
 				for(i = 0; i < list_e.size(); i++){
 					if(list_e[i] == s){
 						list_e.erase(list_e.begin() + i);
-						deadline_e.erase(deadline_e.begin() + i);
 						size_e.erase(size_e.begin() + i);
+						deadline_e.erase(deadline_e.begin() + i);
+						borrowed_date_e.erase(borrowed_date_e.begin() + i);
 						cap -= size;
 						return;
 					}

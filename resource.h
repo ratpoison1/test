@@ -5,6 +5,7 @@ class resource{
 	protected:
 		string name;
 		string who_borrowed;
+		bool exist;
 		char state;
 		int yydd_del;
 		int size;
@@ -24,6 +25,9 @@ class resource{
 		int get_size(){
 			return size;
 		}
+		bool get_exist(){
+			return exist;
+		}
 		void set_who_borrowed(string who){
 			who_borrowed = who;
 		}
@@ -32,6 +36,10 @@ class resource{
 		}
 		void set_yydd_del(int n){
 			yydd_del = n;
+		}
+		void refresh_m(int n){
+			if((yydd_del != 0) && (n - yydd_del > 360))
+				exist = 0;
 		}
 };
 
@@ -42,6 +50,7 @@ class book : public resource{
 			state = 'R';
 			yydd_del = 0;
 			size = 0;
+			exist = 1;
 		}
 };
 
@@ -63,6 +72,7 @@ class e_book : public resource{
 
 			state = 'R';
 			yydd_del = 0;
+			exist = 1;
 		}
 };
 
@@ -73,6 +83,7 @@ class magazine : public resource{
 			name = n;
 			state = 'R';
 			size = 0;
+			exist = 1;
 		}
 };
 
